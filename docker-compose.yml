@@ -1,0 +1,56 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=mysql://statera_user:statera123@db:3306/loja_statera
+      - NODE_ENV=production
+      - BCRYPT_ROUNDS=10
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - statera-network
+    restart: unless-stopped
+
+  db:
+    image: mysql:8.0
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=loja_statera
+      - MYSQL_USER=statera_user
+      - MYSQL_PASSWORD=statera123
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - statera-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+  # Frontend service (commented out for future use)
+  # frontend:
+  #   build:
+  #     context: ./frontend
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - "80:80"
+  #   depends_on:
+  #     - backend
+  #   networks:
+  #     - statera-network
+
+volumes:
+  mysql_data:
+
+networks:
+  statera-network:
+    driver: bridge 
