@@ -122,12 +122,12 @@ O frontend estará disponível em `http://localhost:3001`.
 
 ### Fluxo de Compra
 
-1. Navegue pela loja e adicione produtos ao carrinho
-2. Acesse a página de checkout 
-3. Preencha os dados de entrega
-4. Selecione o método de pagamento (cartão de crédito, boleto ou PIX)
-5. Revise o pedido e confirme a compra
-6. Acompanhe o status do pedido na página de pedidos
+1. Navegue pela loja e adicione produtos ao carrinho (✅)
+2. Acesse a página de checkout (✅)
+3. Preencha os dados de entrega (✅)
+4. Selecione o método de pagamento (cartão de crédito, boleto ou PIX) (✅)
+5. Revise o pedido e confirme a compra (❌)
+6. Acompanhe o status do pedido na página de pedidos (❌) 
 
 ### Autenticação
 
