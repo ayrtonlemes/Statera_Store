@@ -29,7 +29,7 @@ export class UsersService {
             message: 'Email already exists',
             error: 'Conflict'
           });
-        }
+  }
       }
       throw error;
     }
@@ -94,7 +94,7 @@ export class UsersService {
             message: 'Email already exists',
             error: 'Conflict'
           });
-        }
+  }
       }
       throw error;
     }
@@ -117,5 +117,11 @@ export class UsersService {
       }
       throw error;
     }
+  }
+
+  async findByEmail(email: string) {
+    return this.prisma.user.findUnique({
+      where: { email },
+    });
   }
 }
