@@ -64,8 +64,8 @@ export default function OrdersPage() {
   const [expandedOrder, setExpandedOrder] = React.useState<string | null>(null);
 
   React.useEffect(() => {
-    const loadOrders = () => {
-      const currentOrders = orderService.getOrders();
+    const loadOrders = async () => {
+      const currentOrders = await orderService.getOrders();
       setOrders(currentOrders);
       orderService.simulateOrderUpdates();
     };

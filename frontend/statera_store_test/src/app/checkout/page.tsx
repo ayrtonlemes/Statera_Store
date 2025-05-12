@@ -24,10 +24,18 @@ import ChevronLeftRoundedIcon from '@mui/icons-material/ChevronLeftRounded';
 import ChevronRightRoundedIcon from '@mui/icons-material/ChevronRightRounded';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { cartService } from '@/services/cart';
+import { orderService } from '@/services/order';
+import { useRouter } from 'next/navigation';
+import { Alert, Snackbar, FormControl, FormLabel, RadioGroup, Radio } from '@mui/material';
 
 const steps = ['Endereço de Entrega', 'Pagamento', 'Revisão do Pedido'];
 
-function getStepContent(step: number) {
+function getStepContent(
+  step: number,
+  formData: any,
+  handleInputChange: (event: React.ChangeEvent<HTMLInputElement>) => void,
+  handlePaymentMethodChange: (event: React.ChangeEvent<HTMLInputElement>) => void
+) {
   const [cart, setCart] = React.useState(cartService.getCart());
 
   const handleUpdateQuantity = (productId: number, newQuantity: number) => {
@@ -64,6 +72,8 @@ function getStepContent(step: number) {
               fullWidth
               autoComplete="given-name"
               variant="outlined"
+              value={formData.firstName}
+              onChange={handleInputChange}
             />
             <TextField
               required
@@ -73,6 +83,8 @@ function getStepContent(step: number) {
               fullWidth
               autoComplete="family-name"
               variant="outlined"
+              value={formData.lastName}
+              onChange={handleInputChange}
             />
             <TextField
               required
@@ -82,6 +94,8 @@ function getStepContent(step: number) {
               fullWidth
               autoComplete="shipping address-line1"
               variant="outlined"
+              value={formData.address1}
+              onChange={handleInputChange}
             />
             <TextField
               id="address2"
@@ -90,6 +104,8 @@ function getStepContent(step: number) {
               fullWidth
               autoComplete="shipping address-line2"
               variant="outlined"
+              value={formData.address2}
+              onChange={handleInputChange}
             />
             <TextField
               required
@@ -99,6 +115,8 @@ function getStepContent(step: number) {
               fullWidth
               autoComplete="shipping address-level2"
               variant="outlined"
+              value={formData.city}
+              onChange={handleInputChange}
             />
             <TextField
               required
@@ -107,6 +125,8 @@ function getStepContent(step: number) {
               label="Estado"
               fullWidth
               variant="outlined"
+              value={formData.state}
+              onChange={handleInputChange}
             />
             <TextField
               required
@@ -116,6 +136,8 @@ function getStepContent(step: number) {
               fullWidth
               autoComplete="shipping postal-code"
               variant="outlined"
+              value={formData.zip}
+              onChange={handleInputChange}
             />
             <TextField
               required
@@ -125,6 +147,8 @@ function getStepContent(step: number) {
               fullWidth
               autoComplete="shipping country"
               variant="outlined"
+              value={formData.country}
+              onChange={handleInputChange}
             />
             <Box sx={{ gridColumn: { xs: '1 / -1' } }}>
               <FormControlLabel
@@ -144,44 +168,97 @@ function getStepContent(step: number) {
             Detalhes do Pagamento
           </Typography>
           <Box sx={{ display: 'grid', gap: 2 }}>
-            <TextField
-              required
-              id="cardName"
-              label="Nome no Cartão"
-              fullWidth
-              autoComplete="cc-name"
-              variant="outlined"
-            />
-            <TextField
-              required
-              id="cardNumber"
-              label="Número do Cartão"
-              fullWidth
-              autoComplete="cc-number"
-              variant="outlined"
-            />
-            <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
-              <TextField
-                required
-                id="expDate"
-                label="Data de Expiração"
-                fullWidth
-                autoComplete="cc-exp"
-                variant="outlined"
-              />
-              <TextField
-                required
-                id="cvv"
-                label="CVV"
-                fullWidth
-                autoComplete="cc-csc"
-                variant="outlined"
-              />
-            </Box>
-            <FormControlLabel
-              control={<Checkbox color="primary" name="saveCard" value="yes" />}
-              label="Lembrar detalhes do cartão para a próxima vez"
-            />
+            <FormControl component="fieldset">
+              <FormLabel component="legend">Método de Pagamento</FormLabel>
+              <RadioGroup
+                name="paymentMethodType"
+                value={formData.paymentMethodType}
+                onChange={handlePaymentMethodChange}
+              >
+                <FormControlLabel 
+                  value="credit_card" 
+                  control={<Radio />} 
+                  label="Cartão de Crédito" 
+                />
+                <FormControlLabel 
+                  value="boleto" 
+                  control={<Radio />} 
+                  label="Boleto Bancário" 
+                />
+                <FormControlLabel 
+                  value="pix" 
+                  control={<Radio />} 
+                  label="PIX" 
+                />
+              </RadioGroup>
+            </FormControl>
+
+            {formData.paymentMethodType === 'credit_card' && (
+              <>
+                <TextField
+                  required
+                  id="cardName"
+                  name="cardName"
+                  label="Nome no Cartão"
+                  fullWidth
+                  autoComplete="cc-name"
+                  variant="outlined"
+                  value={formData.cardName}
+                  onChange={handleInputChange}
+                />
+                <TextField
+                  required
+                  id="cardNumber"
+                  name="cardNumber"
+                  label="Número do Cartão"
+                  fullWidth
+                  autoComplete="cc-number"
+                  variant="outlined"
+                  value={formData.cardNumber}
+                  onChange={handleInputChange}
+                />
+                <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
+                  <TextField
+                    required
+                    id="expDate"
+                    name="expDate"
+                    label="Data de Expiração"
+                    fullWidth
+                    autoComplete="cc-exp"
+                    variant="outlined"
+                    value={formData.expDate}
+                    onChange={handleInputChange}
+                  />
+                  <TextField
+                    required
+                    id="cvv"
+                    name="cvv"
+                    label="CVV"
+                    fullWidth
+                    autoComplete="cc-csc"
+                    variant="outlined"
+                    value={formData.cvv}
+                    onChange={handleInputChange}
+                  />
+                </Box>
+                <FormControlLabel
+                  control={<Checkbox color="primary" name="saveCard" value="yes" />}
+                  label="Lembrar detalhes do cartão para a próxima vez"
+                />
+              </>
+            )}
+
+            {formData.paymentMethodType === 'boleto' && (
+              <Typography color="text.secondary">
+                O boleto será gerado após a confirmação do pedido. Você receberá o boleto por e-mail.
+              </Typography>
+            )}
+
+            {formData.paymentMethodType === 'pix' && (
+              <Typography color="text.secondary">
+                O código PIX será gerado após a confirmação do pedido. Você poderá pagar através do aplicativo do seu banco.
+              </Typography>
+            )}
           </Box>
         </Box>
       );
@@ -282,7 +359,7 @@ function getStepContent(step: number) {
         </Box>
       );
     default:
-      throw new Error('Etapa desconhecida');
+      throw new Error('Unknown step');
   }
 }
 
@@ -298,14 +375,141 @@ const theme = createTheme({
 });
 
 export default function Checkout() {
+  const router = useRouter();
   const [activeStep, setActiveStep] = React.useState(0);
+  const [formData, setFormData] = React.useState({
+    firstName: '',
+    lastName: '',
+    address1: '',
+    address2: '',
+    city: '',
+    state: '',
+    zip: '',
+    country: '',
+    paymentMethodType: 'credit_card',
+    cardName: '',
+    cardNumber: '',
+    expDate: '',
+    cvv: '',
+  });
+  const [error, setError] = React.useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
 
-  const handleNext = () => {
-    setActiveStep(activeStep + 1);
+  // Verifica se o usuário está logado
+  React.useEffect(() => {
+    const user = localStorage.getItem('user');
+    if (!user) {
+      router.push('/login?redirect=/checkout');
+    }
+  }, [router]);
+
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = event.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handlePaymentMethodChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = event.target;
+    setFormData(prev => ({
+      ...prev,
+      paymentMethodType: value,
+      // Limpa os campos do cartão quando mudar o método de pagamento
+      ...(value !== 'credit_card' && {
+        cardName: '',
+        cardNumber: '',
+        expDate: '',
+        cvv: '',
+      }),
+    }));
+  };
+
+  const validateStep = (step: number): boolean => {
+    switch (step) {
+      case 0: // Endereço
+        return !!(formData.firstName && formData.lastName && formData.address1 && 
+                 formData.city && formData.state && formData.zip && formData.country);
+      case 1: // Pagamento
+        if (formData.paymentMethodType === 'credit_card') {
+          return !!(formData.cardName && formData.cardNumber && formData.expDate && formData.cvv);
+        }
+        return true; // Boleto e PIX não precisam de validação adicional
+      default:
+        return true;
+    }
+  };
+
+  const handleNext = async () => {
+    if (!validateStep(activeStep)) {
+      setError('Por favor, preencha todos os campos obrigatórios.');
+      return;
+    }
+
+    if (activeStep === steps.length - 1) {
+      // Último passo - Finalizar pedido
+      setIsSubmitting(true);
+      try {
+        const cart = cartService.getCart();
+        if (cart.items.length === 0) {
+          throw new Error('O carrinho está vazio');
+        }
+
+        const shippingAddress = {
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          address1: formData.address1,
+          address2: formData.address2,
+          city: formData.city,
+          state: formData.state,
+          zip: formData.zip,
+          country: formData.country,
+        };
+
+        const paymentMethod = {
+          type: formData.paymentMethodType as 'credit_card' | 'boleto' | 'pix',
+          lastDigits: formData.paymentMethodType === 'credit_card' ? formData.cardNumber.slice(-4) : undefined,
+        };
+
+        const cartItems = cart.items.map(item => ({
+          id: item.id,
+          productId: item.product.id,
+          quantity: item.quantity,
+          price: item.product.price,
+        }));
+
+        const response = await orderService.createOrder({ items: cartItems, total: cart.total }, shippingAddress, paymentMethod);
+        if (!response) {
+          throw new Error('Erro ao criar pedido. Por favor, tente novamente.');
+        }
+
+        cartService.clearCart();
+        router.push('/orders');
+      } catch (err) {
+        console.error('Erro ao finalizar pedido:', err);
+        if (err instanceof Error) {
+          if (err.message === 'Usuário não está logado') {
+            router.push('/login?redirect=/checkout');
+          } else {
+            setError(err.message);
+          }
+        } else {
+          setError('Erro ao finalizar pedido. Por favor, tente novamente.');
+        }
+        setIsSubmitting(false);
+      }
+    } else {
+      setActiveStep((prevStep) => prevStep + 1);
+    }
   };
 
   const handleBack = () => {
-    setActiveStep(activeStep - 1);
+    setActiveStep((prevStep) => prevStep - 1);
+  };
+
+  const handleCloseError = () => {
+    setError(null);
   };
 
   return (
@@ -323,9 +527,9 @@ export default function Checkout() {
           <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '2fr 1fr' }, gap: 3 }}>
             <Card>
               <CardContent>
-                <Stepper 
-                  activeStep={activeStep} 
-                  sx={{ 
+              <Stepper
+                activeStep={activeStep}
+              sx={{
                     mb: 4,
                     '& .MuiStep-root:first-of-type': { pl: 0 },
                     '& .MuiStep-root:last-of-type': { pr: 0 }
@@ -334,13 +538,13 @@ export default function Checkout() {
                   {steps.map((label) => (
                     <Step key={label}>
                       <StepLabel>{label}</StepLabel>
-                    </Step>
-                  ))}
-                </Stepper>
+                </Step>
+              ))}
+            </Stepper>
 
-                {activeStep === steps.length ? (
-                  <Stack spacing={2} useFlexGap>
-                    <Typography variant="h1">📦</Typography>
+            {activeStep === steps.length ? (
+              <Stack spacing={2} useFlexGap>
+                <Typography variant="h1">📦</Typography>
                     <Typography variant="h5">
                       Obrigado pelo seu pedido!
                     </Typography>
@@ -348,38 +552,39 @@ export default function Checkout() {
                       Seu número de pedido é <strong>#140396</strong>. Enviamos um
                       email de confirmação e atualizaremos você quando o pedido for
                       enviado.
-                    </Typography>
-                    <Button
-                      variant="contained"
+                </Typography>
+                <Button
+                  variant="contained"
                       sx={{ alignSelf: 'start' }}
                       onClick={() => window.location.href = '/home'}
-                    >
+                >
                       Voltar para a loja
-                    </Button>
-                  </Stack>
-                ) : (
-                  <React.Fragment>
-                    {getStepContent(activeStep)}
+                </Button>
+              </Stack>
+            ) : (
+              <React.Fragment>
+                    {getStepContent(activeStep, formData, handleInputChange, handlePaymentMethodChange)}
                     <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3 }}>
-                      {activeStep !== 0 && (
-                        <Button
-                          startIcon={<ChevronLeftRoundedIcon />}
-                          onClick={handleBack}
+                  {activeStep !== 0 && (
+                    <Button
+                      startIcon={<ChevronLeftRoundedIcon />}
+                      onClick={handleBack}
                           sx={{ mr: 1 }}
                         >
                           Voltar
-                        </Button>
-                      )}
-                      <Button
-                        variant="contained"
-                        endIcon={<ChevronRightRoundedIcon />}
-                        onClick={handleNext}
-                      >
+                    </Button>
+                  )}
+                  <Button
+                    variant="contained"
+                    endIcon={<ChevronRightRoundedIcon />}
+                    onClick={handleNext}
+                        disabled={isSubmitting}
+                  >
                         {activeStep === steps.length - 1 ? 'Finalizar Pedido' : 'Próximo'}
-                      </Button>
-                    </Box>
-                  </React.Fragment>
-                )}
+                  </Button>
+                </Box>
+              </React.Fragment>
+            )}
               </CardContent>
             </Card>
 
@@ -407,6 +612,16 @@ export default function Checkout() {
           </Box>
         </Container>
       </Box>
+      <Snackbar
+        open={!!error}
+        autoHideDuration={6000}
+        onClose={handleCloseError}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert onClose={handleCloseError} severity="error" sx={{ width: '100%' }}>
+          {error}
+        </Alert>
+      </Snackbar>
     </ThemeProvider>
   );
 }

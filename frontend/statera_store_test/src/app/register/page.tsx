@@ -15,7 +15,7 @@ import {
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import axios from "axios";
+import { api } from "@/services/api";
 import { StatusCodes } from "http-status-codes";
 
 const registerSchema = z
@@ -46,17 +46,20 @@ export default function RegisterPage() {
   const onSubmit = async (data: RegisterFormData) => {
     try {
       const { confirmPassword, ...userData } = data;
-
-      const response = await axios.post("http://localhost:3000/users", userData);
+      const response = await api.register(userData.name, userData.email, userData.password);
       
-      console.log("Register data:", data);
+      if (response.error) {
+        if (response.details?.statusCode === StatusCodes.CONFLICT) {
+          setError("Email já está em uso.");
+        } else {
+          setError("Erro ao criar conta. Tente novamente.");
+        }
+        return;
+      }
+
       router.push("/login");
     } catch (err) {
-        if (axios.isAxiosError(err) && err.response?.status === StatusCodes.CONFLICT) {
-            setError("Email já está em uso.");
-          } else {
-            setError("Erro ao criar conta. Tente novamente.");
-        }
+      setError("Erro ao criar conta. Tente novamente.");
     }
   };
 

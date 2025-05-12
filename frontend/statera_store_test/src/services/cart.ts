@@ -1,6 +1,7 @@
 import { Product } from "./products";
 
 export interface CartItem {
+  id: number;
   product: Product;
   quantity: number;
 }
@@ -35,7 +36,7 @@ export const cartService = {
     if (existingItem) {
       existingItem.quantity += quantity;
     } else {
-      cart.items.push({ product, quantity });
+      cart.items.push({ id: product.id, product, quantity });
     }
 
     cart.total = this.calculateTotal(cart.items);
@@ -70,14 +71,14 @@ export const cartService = {
     return emptyCart;
   },
 
-  private calculateTotal(items: CartItem[]): number {
+  calculateTotal(items: CartItem[]): number {
     return items.reduce(
       (total, item) => total + item.product.price * item.quantity,
       0
     );
   },
 
-  private saveCart(cart: Cart): void {
+  saveCart(cart: Cart): void {
     localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
   },
 }; 

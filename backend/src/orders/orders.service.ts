@@ -10,14 +10,36 @@ export class OrdersService {
   constructor(private prisma: PrismaService) {}
 
   async create(createOrderDto: CreateOrderDto): Promise<Order> {
-    const { clientId, items, total } = createOrderDto;
-
+    const {
+      clientId,
+      items,
+      total,
+      shippingFirstName,
+      shippingLastName,
+      shippingAddress1,
+      shippingCity,
+      shippingState,
+      shippingZip,
+      shippingCountry,
+      paymentMethodType,
+    } = createOrderDto;
+  
     const calculatedTotal = total || items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-
+  
     return this.prisma.order.create({
       data: {
-        clientId,
         total: calculatedTotal,
+        shippingFirstName,
+        shippingLastName,
+        shippingAddress1,
+        shippingCity,
+        shippingZip,
+        shippingState,
+        shippingCountry,
+        paymentMethodType,
+        client: {
+          connect: { id: clientId },
+        },
         items: {
           create: items.map(item => ({
             productId: item.productId,
@@ -32,7 +54,7 @@ export class OrdersService {
       },
     });
   }
-
+  
   async findAll(): Promise<Order[]> {
     return this.prisma.order.findMany({
       include: {
